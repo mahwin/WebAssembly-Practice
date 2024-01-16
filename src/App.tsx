@@ -1,11 +1,7 @@
-import "./App.css";
+import { Container } from "./components/Sudoku/Container";
 
 function App() {
-  return (
-    <>
-      <h1>Check</h1>
-    </>
-  );
+  return <Container />;
 }
 
 export default App;
