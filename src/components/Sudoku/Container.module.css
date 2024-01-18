@@ -1,5 +1,18 @@
-.container {
+.box {
   width: 100%;
   display: flex;
   gap: 20px;
+}
+
+.btnBox {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.btn {
+  margin-top: 20px;
+  width: 100px;
+  height: 40px;
+  cursor: pointer;
 }

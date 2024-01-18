@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { sleep } from "../utils";
+
+const sleep200ms = sleep(200);
 
 type Board = number[][];
 
@@ -10,23 +13,28 @@ interface IsValid {
 }
 
 export function useSolveSudoku(initialBoard: Board) {
-  // const [board, setBoard] = useState([...initialBoard]);
-  const board = initialBoard;
+  const [board, setBoard] = useState([...initialBoard]);
 
-  const [answer, setAnswer] = useState(initialBoard);
-
-  const solveSudoku = () => {
+  const solveSudoku = async () => {
     const pos = emptyPos();
     if (pos.length === 0) {
-      setAnswer([...board]);
-      return;
+      return true;
     }
     const [r, c] = pos;
     for (let num = 1; num <= 9; num++) {
       if (isValid({ board, r, c, num })) {
         board[r][c] = num;
-        solveSudoku();
+
+        await sleep200ms();
+
+        setBoard([...board]);
+
+        if (await solveSudoku()) {
+          return true;
+        }
         board[r][c] = 0;
+        setBoard([...board]);
+        // await sleep200ms();
       }
     }
   };
@@ -66,10 +74,5 @@ export function useSolveSudoku(initialBoard: Board) {
     return true;
   };
 
-  // useEffect(() => {
-  //   solveSudoku();
-  // }, []);
-
-  solveSudoku();
-  return { board };
+  return { board, solveSudoku };
 }
