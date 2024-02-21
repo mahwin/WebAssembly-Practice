@@ -1,10 +1,10 @@
 import styles from "./Sudoku.module.css";
 
-import { useSolveSudoku } from "../../hooks/useSolveSudoku";
-import { useEffect, useState } from "react";
-import { timer, deepCopyArr2D } from "../../utils";
+import { useEffect, useMemo, useState } from "react";
+import { sudokuSolve } from "../../utils";
 
-type Board = number[][];
+type Board = string[][];
+
 interface SudokuProps {
   name: string;
   initialBoard: Board;
@@ -12,21 +12,24 @@ interface SudokuProps {
 }
 
 export function Sudoku({ name, initialBoard, isStart }: SudokuProps) {
-  const { board, solveSudoku } = useSolveSudoku(deepCopyArr2D(initialBoard));
-  const [prevBoard] = useState(deepCopyArr2D(initialBoard));
+  const [board, setBoard] = useState(initialBoard);
+  const [prevBoard] = useState(initialBoard);
+
+  const len = useMemo(() => board.length, [board]);
 
   const isDefault = (r: number, c: number) => {
-    if (prevBoard[r][c] !== 0 && board[r][c] === prevBoard[r][c]) return true;
+    if (prevBoard[r][c] !== "0" && board[r][c] === prevBoard[r][c]) return true;
     return false;
   };
 
   useEffect(() => {
     if (!isStart) return;
-
-    (async () => {
-      const time = await timer(solveSudoku);
-      console.log(time.toFixed(2));
-    })();
+    const start = performance.now();
+    const solvedBoard = sudokuSolve(board);
+    const end = performance.now();
+    console.log(`${end - start}ms`);
+    console.log(solvedBoard);
+    setBoard(solvedBoard);
   }, [isStart]);
 
   return (
@@ -36,9 +39,9 @@ export function Sudoku({ name, initialBoard, isStart }: SudokuProps) {
           <h1>{name}</h1>
         </caption>
         <tbody className={styles.tbody}>
-          {Array.from({ length: 9 }, (_, i) => (
+          {Array.from({ length: len }, (_, i) => (
             <tr className={styles.tr} key={i}>
-              {Array.from({ length: 9 }, (_, j) => (
+              {Array.from({ length: len }, (_, j) => (
                 <td className={styles.td} key={j}>
                   <div className={styles.cell}>
                     <span
@@ -46,7 +49,7 @@ export function Sudoku({ name, initialBoard, isStart }: SudokuProps) {
                         isDefault(i, j) ? styles.default : ""
                       }`}
                     >
-                      {board[i][j] !== 0 ? board[i][j] : ""}
+                      {board[i][j] !== "0" ? board[i][j] : ""}
                     </span>
                   </div>
                 </td>
