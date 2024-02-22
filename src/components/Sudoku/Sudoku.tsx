@@ -1,7 +1,6 @@
 import styles from "./Sudoku.module.css";
-
 import { useEffect, useMemo, useState } from "react";
-import { sudokuSolve } from "../../utils";
+import { workerInstance } from "../../worker/js";
 
 type Board = string[][];
 
@@ -14,6 +13,8 @@ interface SudokuProps {
 export function Sudoku({ name, initialBoard, isStart }: SudokuProps) {
   const [board, setBoard] = useState(initialBoard);
   const [prevBoard] = useState(initialBoard);
+  const [isLoading, setIsLoading] = useState(false);
+  const [duration, setDuration] = useState<null | string>(null);
 
   const len = useMemo(() => board.length, [board]);
 
@@ -24,12 +25,17 @@ export function Sudoku({ name, initialBoard, isStart }: SudokuProps) {
 
   useEffect(() => {
     if (!isStart) return;
-    const start = performance.now();
-    const solvedBoard = sudokuSolve(board);
-    const end = performance.now();
-    console.log(`${end - start}ms`);
-    console.log(solvedBoard);
-    setBoard(solvedBoard);
+    setIsLoading(true);
+
+    (async function () {
+      const start = performance.now();
+
+      const result = await workerInstance.sudokuSolve(board);
+
+      setBoard(result);
+      setDuration((performance.now() - start).toFixed(0));
+      setIsLoading(false);
+    })();
   }, [isStart]);
 
   return (
@@ -58,6 +64,10 @@ export function Sudoku({ name, initialBoard, isStart }: SudokuProps) {
           ))}
         </tbody>
       </table>
+      <p className={styles.timer}>
+        {isLoading && <span>Loading...</span>}
+        {duration !== null && <span>{`${duration}ms`}</span>}
+      </p>
     </article>
   );
 }

@@ -9,9 +9,10 @@ interface IsValid {
   num: string;
 }
 
-export const sudokuSolve = (board: Board) => {
+export const sudokuSolve = (initialBoard: Board) => {
+  const board = deepCopyArr2D<string>(initialBoard);
   const len = board.length;
-  const divider = len / 3;
+  const divider = Math.sqrt(len);
 
   const numbers = Array.from({ length: len }, (_, i) => {
     if (i + 1 < 10) return String(i + 1);
@@ -19,11 +20,12 @@ export const sudokuSolve = (board: Board) => {
   });
 
   let isFinish = false;
-  let copyBoard: Board = board;
+  let copyBoard: Board | null = null;
 
   const solve = () => {
     if (isFinish) return;
     const pos = emptyPos();
+
     if (pos.length === 0) {
       copyBoard = deepCopyArr2D<string>(board);
       isFinish = true;
@@ -73,5 +75,5 @@ export const sudokuSolve = (board: Board) => {
     return true;
   };
   solve();
-  return copyBoard;
+  return copyBoard as unknown as Board;
 };

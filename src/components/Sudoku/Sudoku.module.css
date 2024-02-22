@@ -6,9 +6,9 @@
 }
 .tbody {
   border: 4px solid #353b48;
-  position: relative;
+  /* position: relative;
 
-  &::before,
+  /* &::before,
   &::after {
     position: absolute;
     border-style: solid;
@@ -30,7 +30,7 @@
     border-color: whitesmoke transparent whitesmoke transparent;
     left: 0px;
     top: 204px;
-  }
+  } */
 }
 
 .td {
@@ -55,13 +55,32 @@
   color: #353b48;
 }
 
+.td:nth-child(4n) {
+  border-right: 3px solid whitesmoke;
+}
+
+.tr:nth-child(4n) {
+  border-bottom: 3px solid whitesmoke;
+}
+
 .tr {
   &:nth-child(4) .cell,
-  &:nth-child(8) .cell {
+  &:nth-child(8) .cell,
+  &:nth-child(12) .cell {
     margin: 0 0 10px 0;
   }
   &:nth-child(1) td:nth-child(4) .cell,
-  &:nth-child(1) td:nth-child(8) .cell {
+  &:nth-child(1) td:nth-child(8) .cell,
+  &:nth-child(1) td:nth-child(12) .cell {
     margin: 0 10px 0 0;
   }
+}
+
+.timer {
+  color: aliceblue;
+  font-size: 20px;
+  height: 20px;
+  margin-top: 10px;
+  line-height: 20px;
+  text-align: center;
 }
