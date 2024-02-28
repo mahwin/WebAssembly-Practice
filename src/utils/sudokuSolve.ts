@@ -1,4 +1,6 @@
-import { deepCopyArr2D } from ".";
+import { strToTwoDArr, twoDArrToStr } from "./";
+
+type Problem = string;
 
 type Board = string[][];
 
@@ -9,10 +11,10 @@ interface IsValid {
   num: string;
 }
 
-export const sudokuSolve = (initialBoard: Board) => {
-  const board = deepCopyArr2D<string>(initialBoard);
+export const sudokuSolve = (problem: Problem) => {
+  const board = strToTwoDArr(problem);
   const len = board.length;
-  const divider = Math.sqrt(len);
+  const divider = Math.floor(Math.sqrt(len));
 
   const numbers = Array.from({ length: len }, (_, i) => {
     if (i + 1 < 10) return String(i + 1);
@@ -20,14 +22,12 @@ export const sudokuSolve = (initialBoard: Board) => {
   });
 
   let isFinish = false;
-  let copyBoard: Board | null = null;
 
   const solve = () => {
     if (isFinish) return;
     const pos = emptyPos();
 
     if (pos.length === 0) {
-      copyBoard = deepCopyArr2D<string>(board);
       isFinish = true;
       return;
     }
@@ -36,6 +36,7 @@ export const sudokuSolve = (initialBoard: Board) => {
       if (isValid({ board, r, c, num })) {
         board[r][c] = num;
         solve();
+        if (isFinish) return;
         board[r][c] = "0";
       }
     }
@@ -75,5 +76,5 @@ export const sudokuSolve = (initialBoard: Board) => {
     return true;
   };
   solve();
-  return copyBoard as unknown as Board;
+  return twoDArrToStr(board);
 };

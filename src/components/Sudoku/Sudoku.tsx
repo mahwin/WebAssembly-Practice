@@ -1,27 +1,31 @@
 import styles from "./Sudoku.module.css";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { workerInstance } from "../../worker/js";
-
-type Board = string[][];
 
 interface SudokuProps {
   name: string;
-  initialBoard: Board;
+  problem: string;
   isStart: boolean;
 }
 
-export function Sudoku({ name, initialBoard, isStart }: SudokuProps) {
-  const [board, setBoard] = useState(initialBoard);
-  const [prevBoard] = useState(initialBoard);
+export function Sudoku({ name, problem, isStart }: SudokuProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [duration, setDuration] = useState<null | string>(null);
 
-  const len = useMemo(() => board.length, [board]);
+  const [solvedProblem, setSolvedProblem] = useState<string>("");
+  const len = useMemo(() => Math.sqrt(problem.length), [problem]);
 
   const isDefault = (r: number, c: number) => {
-    if (prevBoard[r][c] !== "0" && board[r][c] === prevBoard[r][c]) return true;
+    if (problem[calIndex(r, c)] !== "0") return true;
     return false;
   };
+
+  const calIndex = useCallback(
+    (r: number, c: number) => {
+      return r * len + c;
+    },
+    [len]
+  );
 
   useEffect(() => {
     if (!isStart) return;
@@ -30,13 +34,12 @@ export function Sudoku({ name, initialBoard, isStart }: SudokuProps) {
     (async function () {
       const start = performance.now();
 
-      const result = await workerInstance.sudokuSolve(board);
-
-      setBoard(result);
+      const resultString = await workerInstance.sudokuSolve(problem);
+      setSolvedProblem(resultString);
       setDuration((performance.now() - start).toFixed(0));
       setIsLoading(false);
     })();
-  }, [isStart]);
+  }, [isStart, problem]);
 
   return (
     <article>
@@ -55,7 +58,11 @@ export function Sudoku({ name, initialBoard, isStart }: SudokuProps) {
                         isDefault(i, j) ? styles.default : ""
                       }`}
                     >
-                      {board[i][j] !== "0" ? board[i][j] : ""}
+                      {!isStart || isLoading
+                        ? problem[calIndex(i, j)] !== "0"
+                          ? problem[calIndex(i, j)]
+                          : ""
+                        : solvedProblem[calIndex(i, j)]}
                     </span>
                   </div>
                 </td>
