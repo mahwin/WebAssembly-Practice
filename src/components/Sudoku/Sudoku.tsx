@@ -1,14 +1,15 @@
 import styles from "./Sudoku.module.css";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { workerInstance } from "../../worker/js";
+import type { Worker } from "../../worker/js";
 
 interface SudokuProps {
   name: string;
   problem: string;
   isStart: boolean;
+  worker: Worker;
 }
 
-export function Sudoku({ name, problem, isStart }: SudokuProps) {
+export function Sudoku({ name, problem, isStart, worker }: SudokuProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [duration, setDuration] = useState<null | string>(null);
 
@@ -34,7 +35,7 @@ export function Sudoku({ name, problem, isStart }: SudokuProps) {
     (async function () {
       const start = performance.now();
 
-      const resultString = await workerInstance.sudokuSolve(problem);
+      const resultString = await worker.sudokuSolve(problem);
       setSolvedProblem(resultString);
       setDuration((performance.now() - start).toFixed(0));
       setIsLoading(false);
